@@ -1,46 +1,25 @@
-const { Reader } = require('../models');
+const {
+  createItem,
+  getAllItems,
+  getItemById,
+  updateItem,
+  deleteItem,
+} = require('./helper');
 
-exports.create = async (req, res) => {
-  const newReader = await Reader.create(req.body);
-  res.status(201).json(newReader);
-};
+const createReader = (req, res) => createItem(res, 'reader', req.body);
 
-exports.findAll = async (_, res) => {
-  const readers = await Reader.findAll();
-  res.status(200).json(readers);
-};
+const getReaders = (_, res) => getAllItems(res, 'reader');
 
-exports.readById = async (req, res) => {
-  const { readerId } = req.params;
-  const reader = await Reader.findByPk(readerId);
+const getReadersById = (req, res) => getItemById(res, 'reader', req.params.id);
 
-  if (!reader) {
-    res.status(404).json({ error: 'The reader could not be found.' })
-  } else {
-    res.status(200).json(reader);
-  };
-};
+const updateReader = (req, res) => updateItem(res, 'reader', req.body, req.params.id);
 
-exports.update = async (req, res) => {
-  const { readerId } = req.params;
-  const updateData = req.body;
+const deleteReader = (req, res) => deleteItem(res, 'reader', req.params.id);
 
-  const [ updatedRows ] = await Reader.update(updateData, { where: { id: readerId } });
-
-  if (!updatedRows) {
-    res.status(404).json({ error: 'The reader could not be found.'})
-  } else {
-    res.status(200).json();
-  };
-};
-
-exports.delete = async (req, res) => {
-  const { readerId } = req.params;
-  const deletedRows = await Reader.destroy({ where: { id: readerId } });
-
-  if (!deletedRows) {
-    res.status(404).json({ error: 'The reader could not be found.'})
-  } else {
-    res.status(204).json();
-  };
+module.exports = {
+  createReader,
+  getReaders,
+  getReadersById, 
+  updateReader,
+  deleteReader,
 };

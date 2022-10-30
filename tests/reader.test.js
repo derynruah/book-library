@@ -24,11 +24,42 @@ describe('/readers', () => {
 
         expect(response.status).to.equal(201);
         expect(response.body.name).to.equal('Elizabeth Bennet');
+        expect(response.body.email).to.equal('future_ms_darcy@gmail.com');
+        expect(response.body.password).to.equal(undefined);
+        
         expect(newReaderRecord.name).to.equal('Elizabeth Bennet');
         expect(newReaderRecord.email).to.equal('future_ms_darcy@gmail.com');
+        expect(newReaderRecord.password).to.equal('iheartbooks')
+      });
+
+      it('throws an error if fields are empty', async () => {
+        const response = await request(app).post('/readers').send({});
+        const newReaderRecord = await Reader.findByPk(response.body.id, {
+          raw: true,
+        });
+
+        expect(response.status).to.equal(404);
+        expect(response.body.errors.length).to.equal(3);
+        expect(newReaderRecord).to.equal(null);
+      });
+
+      it('throws an error if email or password are not valid', async () => {
+        const response = await request(app).post('/readers').send({
+          name: 'Elizabeth Bennet',
+          email: 'future_ms_darcygmail.com',
+          password: '123',
+        });
+        const newReaderRecord = await Reader.findByPk(response.body.id, {
+          raw: true,
+        });
+        
+        expect(response.status).to.equal(404);
+        expect(response.body.errors.length).to.equal(2);
+        expect(newReaderRecord).to.equal(null);
       });
     });
   });
+
 
   describe('with records in the database', () => {
     let readers;
@@ -57,18 +88,20 @@ describe('/readers', () => {
 
           expect(reader.name).to.equal(expected.name);
           expect(reader.email).to.equal(expected.email);
+          expect(reader.password).to.equal(undefined);
         });
       });
     });
 
-    describe('GET /readers/:id', () => {
-      it('gets readers record by id', async () => {
-        const reader = readers[0];
-        const response = await request(app).get(`/readers/${reader.id}`);
+    describe('GET/readers/:id', () => {
+      it('gets readers record by id', async() => {
+          const reader = readers[0];
+          const response = await request(app).get(`/readers/${reader.id}`);
 
-        expect(response.status).to.equal(200);
-        expect(response.body.name).to.equal(reader.name);
-        expect(response.body.email).to.equal(reader.email);
+          expect(response.status).to.equal(200);
+          expect(response.body.name).to.equal(reader.name);
+          expect(response.body.email).to.equal(reader.email);
+          expect(response.body.password).to.equal(undefined);
       });
 
       it('returns a 404 if the reader does not exist', async () => {
@@ -103,7 +136,7 @@ describe('/readers', () => {
       });
     });
 
-    describe('DELETE /readers/:id', () => {
+   describe('DELETE /readers/:id', () => {
       it('deletes reader record by id', async () => {
         const reader = readers[0];
         const response = await request(app).delete(`/readers/${reader.id}`);

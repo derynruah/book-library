@@ -32,6 +32,17 @@ describe('/books', () => {
                 expect(newBookRecord.genre).to.equal('Fantasy')
                 expect(newBookRecord.ISBN).to.equal('JRRT101010')
             });
+
+            it('throws an error if fields are empty', async () => {
+                const response = await request(app).post('/books').send({});
+                const newBookRecord = await Book.findByPk(response.body.id, {
+                  raw: true,
+                });
+        
+                expect(response.status).to.equal(404);
+                expect(response.body.errors.length).to.equal(2);
+                expect(newBookRecord).to.equal(null);
+              });
         });
     });
 
@@ -79,7 +90,7 @@ describe('/books', () => {
             });
         });
 
-        describe('GET /books/:id', () => {
+       describe('GET /books/:id', () => {
             it('gets book record by id', async () => {
                 const book = books[0];
                 const response = await request(app).get(`/books/${book.id}`);
@@ -124,7 +135,7 @@ describe('/books', () => {
         });
 
         describe('DELETE /books/:id', () => {
-            it('deletes book record by ISBN', async () => {
+           it('deletes book record by ISBN', async () => {
                 const book = books[0];
                 const response = await request(app).delete(`/books/${book.id}`);
                 const deletedBook = await Book.findByPk(book.id, { raw: true});

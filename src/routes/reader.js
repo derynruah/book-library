@@ -3,11 +3,11 @@ const express = require('express');
 const router = express.Router();
 const readerController = require('../controllers/reader');
 
-router.post ('/', readerController.create);
-router.get ('/', readerController.findAll);
-router.get ('/:readerId', readerController.readById);
-router.patch ('/:readerId', readerController.update);
-router.delete ('/:readerId', readerController.delete)
+router.post ('/', readerController.createReader);
+router.get ('/', readerController.getReaders);
+router.get ('/:id', readerController.getReadersById);
+router.patch ('/:id', readerController.updateReader);
+router.delete ('/:id', readerController.deleteReader)
 
 
 module.exports = router;
